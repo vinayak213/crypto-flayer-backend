@@ -39,7 +39,7 @@ const COINS = {
   polygon:  { symbol: "MATIC",binancePair: "MATICUSDT" },
   litecoin: { symbol: "LTC", binancePair: "LTCUSDT" },
   chainlink:{ symbol: "LINK",binancePair: "LINKUSDT" },
-  avalanche:{ symbol: "AVAX",binancePair: "AVAXUSDT" },
+  avalanche: { symbol: "AVAX",binancePair: "AVAXUSDT" },
   stellar:  { symbol: "XLM", binancePair: "XLMUSDT" },
   vechain:  { symbol: "VET", binancePair: "VETUSDT" },
   cosmos:   { symbol: "ATOM",binancePair: "ATOMUSDT" },
@@ -48,7 +48,7 @@ const COINS = {
   arbitrum: { symbol: "ARB", binancePair: "ARBUSDT" },
   optimism: { symbol: "OP",  binancePair: "OPUSDT" },
   pepe:     { symbol: "PEPE",binancePair: "PEPEUSDT" },
-  shiba-inu:{ symbol: "SHIB",binancePair: "SHIBUSDT" },
+  "shiba-inu": { symbol: "SHIB", binancePair: "SHIBUSDT" },
   render-token: { symbol: "RNDR", binancePair: "RNDRUSDT" },
   // add more here as needed…
 };
