@@ -8,9 +8,24 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
 const OPENAI_KEY = process.env.OPENAI_API_KEY || "";
 const CG_PRO_KEY = process.env.COINGECKO_API_KEY || "";
 
-// Node 18+ has global fetch
+// -------------------------------- CORS (allow-list) --------------------------------
+const ALLOW_ORIGINS = (CORS_ORIGIN || "*").split(/\s*,\s*/).filter(Boolean);
 
-app.use(cors({ origin: CORS_ORIGIN }));
+app.use(cors({
+  origin(origin, cb) {
+    // allow server-to-server / curl / same-origin (no Origin header)
+    if (!origin) return cb(null, true);
+    if (ALLOW_ORIGINS.includes("*") || ALLOW_ORIGINS.includes(origin)) {
+      return cb(null, true);
+    }
+    return cb(new Error("Not allowed by CORS"), false);
+  },
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+app.options("*", cors()); // preflight
+
+// Body parsing
 app.use(express.json());
 
 /* ------------------------ tiny in-memory cache ------------------------ */
@@ -185,11 +200,9 @@ async function fetchPricesSeries(symbol = "bitcoin", vs = "inr", days = 60) {
     const r = await fetch(url, { headers });
     const j = await r.json();
     if (j?.status?.error_code === 429) {
-      // rate-limited: fall back to previous non-empty cache if available
-      if (cached) return cached;
+      if (cached) return cached; // rate-limited: fall back to previous non-empty cache
       throw new Error("rate_limited");
     }
-    // if empty prices, return cached non-empty if any
     if (!Array.isArray(j?.prices) || j.prices.length === 0) {
       if (cached) return cached;
       return j;
@@ -253,7 +266,7 @@ async function analyzeArray(prices, symbol = "bitcoin", vs = "inr") {
           model: "gpt-4o-mini",
           messages: [
             { role: "system", content: "You are Krypto the Kangaroo, a cautious crypto guide. Summarize the 24h outlook in 2–3 sentences based on indicators. End with: '⚠️ Not financial advice.'" },
-            { role: "user", content: `Indicators: ${JSON.stringify({ last, sma20, sma50, rsi14, macd, signal, hist, slope, vol7, signalText, confidence })}` }
+            { role: "user", content: `Indicators: ${JSON.stringify(result.indicators)}; signal=${result.signal}; confidence=${result.confidence}` }
           ]
         })
       });
