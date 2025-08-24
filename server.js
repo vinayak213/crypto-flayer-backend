@@ -12,6 +12,20 @@ const OPENAI_KEY = process.env.OPENAI_API_KEY || ""; // optional for krypto summ
 // Node 18+ has global fetch
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json());
+// --- CORS: allow all, ignore env glitches ---
+import cors from "cors";
+
+// Reflect request origin (safest 'allow all' with correct formatting)
+app.use(cors({ origin: true, credentials: false }));
+
+// Make caches/proxies vary by Origin so responses don't get mixed
+app.use((req, res, next) => {
+  res.setHeader("Vary", "Origin");
+  next();
+});
+
+// Keep JSON body parsing after CORS
+app.use(express.json());
 
 /* ------------------------------- cache -------------------------------- */
 const cache = global.__kcache || (global.__kcache = {});
